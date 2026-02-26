@@ -1,0 +1,16 @@
+{
+  "name": "webhook-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/webhook-service/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/webhook-service",
+        "main": "apps/webhook-service/src/handler.ts",
+        "tsConfig": "apps/webhook-service/tsconfig.json"
+      }
+    }
+  }
+}

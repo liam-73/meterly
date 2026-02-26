@@ -1,0 +1,16 @@
+{
+  "name": "usage-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/usage-service/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/usage-service",
+        "main": "apps/usage-service/src/handler.ts",
+        "tsConfig": "apps/usage-service/tsconfig.json"
+      }
+    }
+  }
+}

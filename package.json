@@ -1,0 +1,38 @@
+{
+  "name": "meterly",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc -b apps/*/tsconfig.json",
+    "build:api": "tsc -p apps/api-service/tsconfig.json",
+    "build:usage": "tsc -p apps/usage-service/tsconfig.json",
+    "build:billing": "tsc -p apps/billing-service/tsconfig.json",
+    "build:invoice": "tsc -p apps/invoice-service/tsconfig.json",
+    "build:webhook": "tsc -p apps/webhook-service/tsconfig.json",
+    "clean": "rm -rf dist",
+    "dev": "tsx --tsconfig local/tsconfig.json local/server.ts",
+    "dev:billing": "tsx --tsconfig local/tsconfig.json local/run-billing.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.525.0",
+    "@aws-sdk/client-s3": "^3.525.0",
+    "@aws-sdk/client-sns": "^3.525.0",
+    "@aws-sdk/client-sqs": "^3.525.0",
+    "@aws-sdk/lib-dynamodb": "^3.525.0",
+    "express": "^4.18.2",
+    "pdfkit": "^0.14.0",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "@nx/js": "^18.0.4",
+    "@types/aws-lambda": "^8.10.133",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.16",
+    "@types/pdfkit": "^0.13.3",
+    "@types/uuid": "^9.0.7",
+    "module-alias": "^2.2.3",
+    "nx": "^18.0.4",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "invoice-service",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/invoice-service/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/invoice-service",
+        "main": "apps/invoice-service/src/handler.ts",
+        "tsConfig": "apps/invoice-service/tsconfig.json"
+      }
+    }
+  }
+}
