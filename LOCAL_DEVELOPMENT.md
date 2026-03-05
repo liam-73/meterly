@@ -1,6 +1,6 @@
 # Local Development Guide
 
-Run Meterly locally with in-memory storage, eliminating AWS dependencies during development.
+Run Meterly locally using LocalStack to emulate AWS services.
 
 ## Quick Start
 
@@ -11,8 +11,11 @@ pnpm install
 # Build the project
 pnpm build
 
-# Start local development server
-pnpm dev
+# Start LocalStack (AWS emulator)
+docker compose -f docker-compose.localstack.yml up -d
+
+# Start local development server (talks to LocalStack)
+AWS_ENDPOINT=http://localhost:4566 AWS_REGION=us-east-1 AWS_ACCESS_KEY_ID=test AWS_SECRET_ACCESS_KEY=test pnpm dev
 ```
 
 The server runs on `http://localhost:3000` with a web UI for testing and inspection.
@@ -87,44 +90,20 @@ Response:
 
 This request triggers the complete flow:
 1. API key validation
-2. `ApiRequestConsumed` event published to in-memory SNS
-3. Usage service processes event and increments monthly counter
-4. Event marked as processed for idempotency
+2. `ApiRequestConsumed` event published to SNS (LocalStack)
+3. Usage service processes event from SQS and increments monthly counter
+4. Event marked as processed for idempotency in DynamoDB
 
-## Debug Endpoints
-
-### View All Tables
-
-```bash
-curl http://localhost:3000/debug/tables
-```
-
-Returns complete in-memory state: tenants, API keys, usage records, invoices, and processed events.
-
-### View Event Log
-
-```bash
-curl http://localhost:3000/debug/events
-```
-
-Returns all published domain events with timestamps.
-
-### Reset State
-
-```bash
-curl -X DELETE http://localhost:3000/debug/reset
-```
-
-Clears all in-memory data and event logs.
+> Debug endpoints for the in-memory implementation have been removed now that LocalStack is the primary local environment.
 
 ## Local Architecture
 
 The development server provides:
 
-1. **In-Memory AWS Mocks** - DynamoDB tables, SNS topics, SQS queues, and S3 buckets run entirely in process
-2. **Event-Driven Processing** - Events published to SNS are immediately delivered to subscribed Lambda handlers
+1. **LocalStack-backed AWS Services** - DynamoDB tables, SNS topics, SQS queues, and S3 buckets run in LocalStack
+2. **Event-Driven Processing** - Events published to SNS are delivered to subscribed SQS queues
 3. **Real Handler Code** - Uses actual compiled Lambda handlers from `dist/apps/`
-4. **Synchronous Processing** - Event consumers process messages immediately for fast feedback
+4. **Asynchronous Semantics** - You can still invoke the async services via your usual AWS-style flows and scripts
 
 ## Event Flow
 
@@ -191,18 +170,18 @@ Either kill the process using port 3000 or modify the `PORT` constant in `local/
 
 ## Local vs AWS Comparison
 
-| Component | AWS | Local |
-|-----------|-----|-------|
-| Storage | DynamoDB | In-memory Map |
-| Messaging | SNS → SQS | In-memory pub/sub with immediate delivery |
-| File Storage | S3 | Mock URLs (no actual files) |
+| Component | AWS | Local (LocalStack) |
+|-----------|-----|--------------------|
+| Storage | DynamoDB | LocalStack DynamoDB |
+| Messaging | SNS → SQS | LocalStack SNS → SQS |
+| File Storage | S3 | LocalStack S3 |
 | Webhooks | HTTP POST | Real HTTP POST to external URLs |
-| Persistence | Durable | Volatile (cleared on restart) |
-| Event Delivery | Asynchronous with retries | Synchronous and immediate |
+| Persistence | Durable | Durable within LocalStack volumes |
+| Event Delivery | Asynchronous with retries | Asynchronous via LocalStack |
 
 ## Next Steps
 
-1. Test the complete flow: create tenant → generate API key → consume resource → verify usage
-2. Manually trigger billing with `pnpm dev:billing` to test invoice generation
-3. Use debug endpoints to inspect state and events
-4. Deploy to AWS when ready
+1. Start LocalStack and the local server.
+2. Test the complete flow: create tenant → generate API key → consume resource → verify usage in LocalStack tables.
+3. Manually trigger billing with `pnpm dev:billing` (with `AWS_ENDPOINT` etc. set) to test invoice generation.
+4. Deploy to AWS when ready (without `AWS_ENDPOINT` so the SDK talks to real AWS).

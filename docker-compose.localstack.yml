@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  localstack:
+    image: localstack/localstack:latest
+    container_name: meterly-localstack
+    ports:
+      - '4566:4566' # Edge port for all services
+    environment:
+      - SERVICES=dynamodb,sns,sqs,s3
+      - DEBUG=1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      # Optional: place init scripts here to auto-create tables/queues/topics
+      - ./localstack/init:/etc/localstack/init/ready.d
+
